@@ -48,8 +48,8 @@ export const PROJECT_METADATA = {
   shortTitle: "FloodAI",
   academicContext: "Academic Minor Project • Computer Science & Engineering (AI/ML)",
   domain: "Deep Learning • Computer Vision • Earth Observation & Remote Sensing",
-  streamlitUrl: process.env.NEXT_PUBLIC_STREAMLIT_URL || "http://localhost:8501",
-  githubUrl: process.env.NEXT_PUBLIC_GITHUB_URL || "https://github.com",
+  streamlitUrl: process.env.NEXT_PUBLIC_STREAMLIT_URL || "https://ai-flood-detection.onrender.com",
+  githubUrl: process.env.NEXT_PUBLIC_GITHUB_URL || "https://github.com/SupremeNexas/Ai-flood",
 };
 
 export const VERIFIED_BENCHMARKS = {
