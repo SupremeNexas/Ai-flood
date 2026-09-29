@@ -1,8 +1,8 @@
 {
   "dataset_name": "Sen1Floods11",
   "data_directory": "data/samples",
-  "total_chips_discovered": 32,
-  "valid_chips": 32,
+  "total_chips_discovered": 49,
+  "valid_chips": 49,
   "invalid_chips": 0,
   "geographic_events_represented": [
     "Bolivia",
@@ -18,10 +18,10 @@
     "USA"
   ],
   "layers_available": {
-    "S1Hand": 32,
-    "S2Hand": 32,
-    "LabelHand": 32,
-    "JRCWaterHand": 32
+    "S1Hand": 49,
+    "S2Hand": 49,
+    "LabelHand": 49,
+    "JRCWaterHand": 49
   },
   "spatial_properties": {
     "image_height": 512,
@@ -32,22 +32,22 @@
     "pixel_area_km2": 0.0001
   },
   "pixel_class_distribution": {
-    "total_pixels": 8388608,
-    "valid_pixels": 7121893,
-    "water_pixels": 1150214,
-    "non_water_pixels": 5971679,
-    "invalid_cloud_nodata_pixels": 1266715,
-    "water_percentage_overall": 16.15,
-    "non_water_percentage_overall": 83.85,
-    "invalid_pixel_percentage": 15.1,
-    "imbalance_ratio_nonwater_to_water": 5.19
+    "total_pixels": 12845056,
+    "valid_pixels": 10717009,
+    "water_pixels": 1828756,
+    "non_water_pixels": 8888253,
+    "invalid_cloud_nodata_pixels": 2128047,
+    "water_percentage_overall": 17.06,
+    "non_water_percentage_overall": 82.94,
+    "invalid_pixel_percentage": 16.57,
+    "imbalance_ratio_nonwater_to_water": 4.86
   },
   "s1_sar_statistics": {
-    "vv_min_global": -53.18175506591797,
+    "vv_min_global": -89.78575897216797,
     "vv_max_global": 23.054107666015625,
-    "vv_mean_global": -10.751504376530647,
-    "vh_min_global": -60.44136047363281,
+    "vv_mean_global": -10.80117402757917,
+    "vh_min_global": -103.87602996826172,
     "vh_max_global": 12.022953987121582,
-    "vh_mean_global": -17.557254821062088
+    "vh_mean_global": -17.66387721470424
   }
 }

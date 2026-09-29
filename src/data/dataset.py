@@ -47,6 +47,7 @@ class Sen1Floods11Dataset(Dataset):
         transform: Optional[SynchronizedAugmentation] = None,
         preprocessor: Optional[FloodPreprocessor] = None,
         return_metadata: bool = True,
+        image_size: Optional[int] = None,
     ):
         self.data_dir = data_dir
         self.split_file = split_file
@@ -54,6 +55,7 @@ class Sen1Floods11Dataset(Dataset):
         self.transform = transform
         self.preprocessor = preprocessor or FloodPreprocessor()
         self.return_metadata = return_metadata
+        self.image_size = image_size
 
         if self.modality not in MODALITY_CHANNELS:
             raise ValueError(f"Unsupported modality '{self.modality}'. Choose from: {list(MODALITY_CHANNELS.keys())}")
@@ -136,11 +138,17 @@ class Sen1Floods11Dataset(Dataset):
         # Stack into (C, H, W)
         image = np.concatenate(channel_arrays, axis=0)
 
-        # 3. Apply Synchronized Augmentation if enabled
+        # 3. Apply spatial downsampling if image_size specified (e.g. 256x256)
+        if self.image_size is not None and image.shape[1] > self.image_size:
+            stride = image.shape[1] // self.image_size
+            image = image[:, ::stride, ::stride]
+            mask = mask[::stride, ::stride]
+
+        # 4. Apply Synchronized Augmentation if enabled
         if self.transform is not None:
             image, mask, _ = self.transform(image, mask)
 
-        # 4. Convert to PyTorch Tensors
+        # 5. Convert to PyTorch Tensors
         image_tensor = torch.from_numpy(image).float()
         mask_tensor = torch.from_numpy(mask).long()
 
@@ -177,6 +185,7 @@ def create_dataloaders(
     batch_size: int = 4,
     num_workers: int = 0,
     enable_augmentation: bool = True,
+    image_size: Optional[int] = None,
 ) -> Dict[str, DataLoader]:
     """
     Convenience factory to build PyTorch DataLoaders for train, valid, test, and bolivia splits.
@@ -204,6 +213,7 @@ def create_dataloaders(
             modality=modality,
             transform=aug,
             preprocessor=preprocessor,
+            image_size=image_size,
         )
 
         if len(ds) > 0:

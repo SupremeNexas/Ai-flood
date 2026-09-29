@@ -1,0 +1,67 @@
+[
+  {
+    "configuration": "S1 (SAR Only)",
+    "modality": "s1",
+    "channels": 2,
+    "best_epoch": 5,
+    "val_loss": 0.301,
+    "val_iou": 0.8255,
+    "val_dice": 0.9044,
+    "val_precision": 0.952,
+    "val_recall": 0.8613,
+    "val_f1": 0.9044,
+    "val_accuracy": 0.9642
+  },
+  {
+    "configuration": "S2 RGB (Optical Only)",
+    "modality": "s2_rgb",
+    "channels": 3,
+    "best_epoch": 2,
+    "val_loss": 0.5602,
+    "val_iou": 0.5043,
+    "val_dice": 0.6705,
+    "val_precision": 0.5868,
+    "val_recall": 0.782,
+    "val_f1": 0.6705,
+    "val_accuracy": 0.8489
+  },
+  {
+    "configuration": "S1 + JRC (SAR + Baseline)",
+    "modality": "s1_jrc",
+    "channels": 3,
+    "best_epoch": 8,
+    "val_loss": 0.2949,
+    "val_iou": 0.7518,
+    "val_dice": 0.8583,
+    "val_precision": 0.9759,
+    "val_recall": 0.766,
+    "val_f1": 0.8583,
+    "val_accuracy": 0.9503
+  },
+  {
+    "configuration": "S1 + S2 RGB (Fusion)",
+    "modality": "s1_s2_rgb",
+    "channels": 5,
+    "best_epoch": 2,
+    "val_loss": 0.3821,
+    "val_iou": 0.6567,
+    "val_dice": 0.7928,
+    "val_precision": 0.9145,
+    "val_recall": 0.6996,
+    "val_f1": 0.7928,
+    "val_accuracy": 0.9281
+  },
+  {
+    "configuration": "S1 + S2 RGB + JRC (Full Multi-Modal)",
+    "modality": "s1_s2_rgb_jrc",
+    "channels": 6,
+    "best_epoch": 3,
+    "val_loss": 0.3974,
+    "val_iou": 0.504,
+    "val_dice": 0.6702,
+    "val_precision": 0.9661,
+    "val_recall": 0.5131,
+    "val_f1": 0.6702,
+    "val_accuracy": 0.9007
+  }
+]

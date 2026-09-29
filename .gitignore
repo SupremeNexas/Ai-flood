@@ -26,12 +26,26 @@ htmlcov/
 .idea/
 
 # Checkpoints & model weights
-checkpoints/
+checkpoints/*
+!checkpoints/best_s1.pt
 *.pth
 *.pt
 *.onnx
+!checkpoints/best_s1.pt
 
 # Large raw datasets (keep splits & small samples)
 data/raw/*.tif
+data/raw_full_backup/
 data/processed/*.tif
 data/processed/*.npy
+
+# Node & Next.js Website
+website/node_modules/
+website/.next/
+website/.env*
+website/.turbo/
+
+# Office / PowerPoint Temporary Files
+~$*.pptx
+~$*.ppt
+

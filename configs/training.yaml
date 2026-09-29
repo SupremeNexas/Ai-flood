@@ -1,0 +1,59 @@
+# Training Configuration for Flood Semantic Segmentation
+
+experiment:
+  name: "sen1floods11_unet_benchmarks"
+  seed: 42
+  deterministic: true
+
+model:
+  architecture: "unet"
+  features: [32, 64, 128, 256, 512]
+  activation: "relu"
+  dropout_prob: 0.1
+  bilinear: true
+
+loss:
+  type: "combined_bce_dice"  # 'bce', 'dice', 'combined_bce_dice'
+  alpha: 0.5                 # BCE weight
+  beta: 0.5                  # Dice weight
+  smooth: 1.0e-6
+  ignore_index: -1
+
+optimizer:
+  type: "adamw"              # 'adam', 'adamw'
+  lr: 0.0005                 # Initial learning rate
+  weight_decay: 0.0001
+  betas: [0.9, 0.999]
+
+scheduler:
+  type: "cosine"             # 'cosine', 'plateau', 'none'
+  min_lr: 0.00001
+  patience: 5                # for plateau scheduler
+  factor: 0.5
+
+training:
+  epochs: 15
+  batch_size: 4
+  num_workers: 0
+  mixed_precision: true      # Uses torch.cuda.amp / torch.autocast when available
+  gradient_clipping: 1.0
+  early_stopping_patience: 8
+  monitor_metric: "iou"      # 'iou', 'dice', 'val_loss'
+  monitor_mode: "max"
+
+modalities_to_benchmark:
+  - name: "s1"
+    description: "Sentinel-1 SAR baseline (VV, VH)"
+    channels: 2
+  - name: "s2_rgb"
+    description: "Sentinel-2 Optical RGB (Red, Green, Blue)"
+    channels: 3
+  - name: "s1_jrc"
+    description: "Sentinel-1 SAR + Pre-Flood Permanent Water (VV, VH, JRC)"
+    channels: 3
+  - name: "s1_s2_rgb"
+    description: "Multi-Sensor Early Fusion (VV, VH, Red, Green, Blue)"
+    channels: 5
+  - name: "s1_s2_rgb_jrc"
+    description: "Full Stack: Multi-Sensor + Pre-Flood Baseline (VV, VH, RGB, JRC)"
+    channels: 6

@@ -1,0 +1,86 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --background: #070b14;
+    --foreground: #f1f5f9;
+    --card: #0d1527;
+    --card-border: #1e293b;
+    --primary: #38bdf8;
+    --primary-glow: rgba(56, 189, 248, 0.25);
+    --accent: #00d2ff;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+  }
+
+  /* Custom subtle scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #070b14;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #1e293b;
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #334155;
+  }
+}
+
+/* Glassmorphism & Custom Component Classes */
+.glass-panel {
+  background: rgba(13, 21, 39, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(30, 41, 59, 0.8);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
+}
+
+.glass-panel-glow {
+  background: rgba(13, 21, 39, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  box-shadow: 0 0 25px -5px rgba(56, 189, 248, 0.15);
+}
+
+.text-gradient-cyan {
+  background: linear-gradient(135deg, #ffffff 0%, #38bdf8 50%, #00d2ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-gradient-blue {
+  background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 50%, #1d4ed8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.glow-border-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.glow-border-hover:hover {
+  border-color: rgba(56, 189, 248, 0.4);
+  box-shadow: 0 8px 30px -4px rgba(56, 189, 248, 0.2);
+  transform: translateY(-2px);
+}
+
+/* Animated radar pulse for SAR graphics */
+@keyframes radar-sweep {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.radar-sweep {
+  animation: radar-sweep 6s linear infinite;
+  transform-origin: center;
+}

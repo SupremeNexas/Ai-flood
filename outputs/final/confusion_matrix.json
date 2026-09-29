@@ -1,0 +1,14 @@
+{
+  "true_positives": 1703186,
+  "false_positives": 503818,
+  "false_negatives": 862915,
+  "true_negatives": 17447448,
+  "total_valid_pixels": 20517367,
+  "water_pixels": 2566101,
+  "land_pixels": 17951266,
+  "precision_formula": "TP / (TP + FP)",
+  "recall_formula": "TP / (TP + FN)",
+  "iou_formula": "TP / (TP + FP + FN)",
+  "dice_formula": "2*TP / (2*TP + FP + FN)",
+  "dice_f1_equivalence_verified": true
+}

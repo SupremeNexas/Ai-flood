@@ -1,0 +1,38 @@
+[
+  {
+    "stem": "USA_905409",
+    "event": "USA",
+    "category": "Good Prediction",
+    "iou": 0.935,
+    "dice": 0.9664,
+    "precision": 0.972,
+    "recall": 0.9609,
+    "gt_water_pixels": 44467,
+    "pred_water_pixels": 43959,
+    "figure_path": "outputs/visualizations/final_test/1_good_prediction_USA_905409.png"
+  },
+  {
+    "stem": "Pakistan_694942",
+    "event": "Pakistan",
+    "category": "Average Prediction",
+    "iou": 0.3829,
+    "dice": 0.5538,
+    "precision": 0.4152,
+    "recall": 0.8313,
+    "gt_water_pixels": 18481,
+    "pred_water_pixels": 37006,
+    "figure_path": "outputs/visualizations/final_test/2_average_prediction_Pakistan_694942.png"
+  },
+  {
+    "stem": "Sri-Lanka_450918",
+    "event": "Sri-Lanka",
+    "category": "Difficult Prediction",
+    "iou": 0.0086,
+    "dice": 0.0171,
+    "precision": 0.2317,
+    "recall": 0.0089,
+    "gt_water_pixels": 4277,
+    "pred_water_pixels": 164,
+    "figure_path": "outputs/visualizations/final_test/3_difficult_prediction_Sri-Lanka_450918.png"
+  }
+]
