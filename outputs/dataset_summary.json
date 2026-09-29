@@ -1,0 +1,53 @@
+{
+  "dataset_name": "Sen1Floods11",
+  "data_directory": "data/samples",
+  "total_chips_discovered": 32,
+  "valid_chips": 32,
+  "invalid_chips": 0,
+  "geographic_events_represented": [
+    "Bolivia",
+    "Ghana",
+    "India",
+    "Mekong",
+    "Nigeria",
+    "Pakistan",
+    "Paraguay",
+    "Somalia",
+    "Spain",
+    "Sri-Lanka",
+    "USA"
+  ],
+  "layers_available": {
+    "S1Hand": 32,
+    "S2Hand": 32,
+    "LabelHand": 32,
+    "JRCWaterHand": 32
+  },
+  "spatial_properties": {
+    "image_height": 512,
+    "image_width": 512,
+    "crs": "EPSG:4326",
+    "spatial_resolution_meters": 10.0,
+    "pixel_area_m2": 100.0,
+    "pixel_area_km2": 0.0001
+  },
+  "pixel_class_distribution": {
+    "total_pixels": 8388608,
+    "valid_pixels": 7121893,
+    "water_pixels": 1150214,
+    "non_water_pixels": 5971679,
+    "invalid_cloud_nodata_pixels": 1266715,
+    "water_percentage_overall": 16.15,
+    "non_water_percentage_overall": 83.85,
+    "invalid_pixel_percentage": 15.1,
+    "imbalance_ratio_nonwater_to_water": 5.19
+  },
+  "s1_sar_statistics": {
+    "vv_min_global": -53.18175506591797,
+    "vv_max_global": 23.054107666015625,
+    "vv_mean_global": -10.751504376530647,
+    "vh_min_global": -60.44136047363281,
+    "vh_max_global": 12.022953987121582,
+    "vh_mean_global": -17.557254821062088
+  }
+}

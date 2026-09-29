@@ -1,0 +1,73 @@
+project:
+  name: "AI-Based Flood Detection and Mapping"
+  title: "AI-Based Flood Detection and Mapping Using Pre- and Post-Flood Satellite Imagery"
+  version: "1.0.0"
+  seed: 42
+
+paths:
+  data_root: "data"
+  raw_dir: "data/raw"
+  samples_dir: "data/samples"
+  processed_dir: "data/processed"
+  splits_dir: "data/raw/splits"
+  outputs_dir: "outputs"
+  visualizations_dir: "outputs/visualizations"
+  dataset_samples_dir: "outputs/visualizations/dataset_samples"
+  checkpoints_dir: "checkpoints"
+
+dataset:
+  name: "Sen1Floods11"
+  version: "v1.1"
+  image_size: [512, 512]
+  spatial_resolution_meters: 10.0
+  classes:
+    - name: "invalid"
+      value: -1
+      description: "Cloud cover, sensor no-data, or invalid region (ignored in loss)"
+    - name: "non_water"
+      value: 0
+      description: "Dry land, vegetation, urban, non-flooded"
+    - name: "flood_water"
+      value: 1
+      description: "Inundated flood water / surface water extent"
+  ignore_index: -1
+
+modalities:
+  # Supported modality keys:
+  # 's1': 2 channels (VV, VH)
+  # 's2_rgb': 3 channels (B4-Red, B3-Green, B2-Blue)
+  # 's1_jrc': 3 channels (VV, VH, JRC Permanent Water Baseline)
+  # 's1_s2_rgb': 5 channels (VV, VH, Red, Green, Blue)
+  # 's1_s2_rgb_jrc': 6 channels (VV, VH, Red, Green, Blue, JRC Permanent Water Baseline)
+  default_modality: "s1"
+
+normalization:
+  s1:
+    # SAR backscatter in dB scale
+    clip_min: -35.0
+    clip_max: 5.0
+    mean: [-12.0, -18.0]
+    std: [5.0, 5.0]
+    method: "min_max"  # 'min_max' maps [clip_min, clip_max] to [0, 1]
+  s2:
+    # Optical TOA reflectance (scale factor 10,000)
+    scale_factor: 10000.0
+    clip_max: 0.4  # TOA reflectance ceiling for visualization/normalization
+    mean: [0.15, 0.15, 0.15]
+    std: [0.10, 0.10, 0.10]
+  jrc:
+    # Historical permanent water baseline
+    binary: true
+
+augmentation:
+  horizontal_flip_prob: 0.5
+  vertical_flip_prob: 0.5
+  random_rot90_prob: 0.5
+  random_crop: false
+  crop_size: [256, 256]
+
+dataloader:
+  batch_size: 4
+  num_workers: 2
+  pin_memory: true
+  drop_last: false
