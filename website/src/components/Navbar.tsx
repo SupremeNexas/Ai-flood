@@ -18,15 +18,15 @@ export default function Navbar() {
   }, []);
 
   const navLinks = [
-    { name: "Overview", href: "#overview" },
-    { name: "Pipeline", href: "#pipeline" },
-    { name: "Dataset", href: "#dataset" },
-    { name: "SAR Radar", href: "#sar" },
-    { name: "U-Net", href: "#architecture" },
-    { name: "Training", href: "#training" },
-    { name: "Evaluation", href: "#evaluation" },
-    { name: "Predictions", href: "#predictions" },
-    { name: "Live Demo", href: "#demo" },
+    { name: "Overview", href: "/#overview" },
+    { name: "Architecture", href: "/architecture" },
+    { name: "Pipeline", href: "/#pipeline" },
+    { name: "Dataset", href: "/#dataset" },
+    { name: "SAR Radar", href: "/#sar" },
+    { name: "Training", href: "/#training" },
+    { name: "Evaluation", href: "/#evaluation" },
+    { name: "Predictions", href: "/#predictions" },
+    { name: "Live Demo", href: "/#demo" },
   ];
 
   return (

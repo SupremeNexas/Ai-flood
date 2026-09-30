@@ -1,0 +1,98 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Streamlit Dual-Mode Inference & Evaluation Workflow",
+    "output": "docs/architecture/streamlit-workflow.html",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "benchmark-flow",
+        "label": "Path A: Official Benchmark Mode",
+        "focus": ["user_select", "load_chip", "prep_bench", "unet_inference", "prob_mask_gen", "gt_compare", "multi_panel"],
+        "note": "Evaluates official Sen1Floods11 test chips against ground truth masks with quantitative metrics."
+      },
+      {
+        "id": "custom-flow",
+        "label": "Path B: Custom GeoTIFF Upload Mode",
+        "focus": ["user_upload", "validate_geo", "prep_custom", "unet_inference", "prob_mask_gen", "nominal_area_node", "multi_panel"],
+        "note": "Accepts user-supplied Sentinel-1 SAR GeoTIFF, validates bands, and maps flooded area."
+      }
+    ]
+  },
+  "lanes": [
+    { "id": "lane_benchmark", "label": "Path A: Benchmark Pipeline" },
+    { "id": "lane_engine", "label": "Shared PyTorch AI Inference" },
+    { "id": "lane_custom", "label": "Path B: Custom GeoTIFF Pipeline" },
+    { "id": "lane_ui", "label": "Streamlit Diagnostic UI" }
+  ],
+  "phases": [
+    { "id": "phase_intake", "label": "Intake & Validation", "fromCol": 0, "toCol": 1 },
+    { "id": "phase_model", "label": "Preprocessing & Inference", "fromCol": 2, "toCol": 3, "variant": "emphasis" },
+    { "id": "phase_results", "label": "Mapping & Visualization", "fromCol": 4, "toCol": 5, "variant": "dashed" }
+  ],
+  "groups": [
+    { "id": "grp_bench", "label": "Benchmark Track", "lane": "lane_benchmark", "fromCol": 0, "toCol": 5, "variant": "default" },
+    { "id": "grp_custom", "label": "Upload Track", "lane": "lane_custom", "fromCol": 0, "toCol": 5, "variant": "default" },
+    { "id": "grp_ai", "label": "Core U-Net", "lane": "lane_engine", "fromCol": 3, "toCol": 4, "variant": "emphasis" }
+  ],
+  "mainPath": ["user_select", "load_chip", "prep_bench", "unet_inference", "prob_mask_gen", "gt_compare", "multi_panel"],
+  "nodes": [
+    { "id": "user_select", "lane": "lane_benchmark", "col": 0, "type": "frontend", "label": "Select Chip", "sublabel": "90 Test Chips", "tag": "Benchmark", "width": 130 },
+    { "id": "load_chip", "lane": "lane_benchmark", "col": 1, "type": "database", "label": "Load S1 & Mask", "sublabel": "VV, VH + GT Mask", "tag": "Sen1Floods11", "width": 130 },
+    { "id": "prep_bench", "lane": "lane_benchmark", "col": 2, "type": "backend", "label": "Preprocess S1", "sublabel": "Clip & Scale [0, 1]", "tag": "Radiometric", "width": 130 },
+    { "id": "gt_compare", "lane": "lane_benchmark", "col": 5, "type": "backend", "label": "GT Comparison", "sublabel": "IoU, Dice, Prec, Rec", "tag": "Evaluation", "width": 130 },
+
+    { "id": "unet_inference", "lane": "lane_engine", "col": 3, "type": "backend", "brand": "pytorch", "label": "PyTorch U-Net", "sublabel": "7.76M Params", "tag": "GroupNorm G=8", "width": 130 },
+    { "id": "prob_mask_gen", "lane": "lane_engine", "col": 4, "type": "backend", "label": "Prob & Mask", "sublabel": "Sigmoid + τ=0.50", "tag": "Probability", "width": 130 },
+
+    { "id": "user_upload", "lane": "lane_custom", "col": 0, "type": "frontend", "label": "Upload GeoTIFF", "sublabel": "Custom S1 Scene", "tag": "User File", "width": 130 },
+    { "id": "validate_geo", "lane": "lane_custom", "col": 1, "type": "security", "label": "Validate Raster", "sublabel": "Bands & Bounds", "tag": "Sanity Check", "width": 130 },
+    { "id": "prep_custom", "lane": "lane_custom", "col": 2, "type": "backend", "label": "Normalize SAR", "sublabel": "dB Calibration", "tag": "[-35, 5] dB", "width": 130 },
+    { "id": "nominal_area_node", "lane": "lane_custom", "col": 5, "type": "backend", "label": "Nominal Area", "sublabel": "Coverage (km²)", "tag": "100 m² / Pixel", "width": 130 },
+
+    { "id": "multi_panel", "lane": "lane_ui", "col": 5, "type": "frontend", "label": "Diagnostic UI", "sublabel": "5 Matplotlib Panels", "tag": "Interactive", "width": 130 }
+  ],
+  "edges": [
+    { "id": "e_select_load", "from": "user_select", "to": "load_chip", "label": "pick chip", "variant": "default" },
+    { "id": "e_load_prep", "from": "load_chip", "to": "prep_bench", "label": "raw SAR", "variant": "default" },
+    { "id": "e_prep_unet", "from": "prep_bench", "to": "unet_inference", "label": "tensor [2,256,256]", "variant": "emphasis" },
+    { "id": "e_unet_prob", "from": "unet_inference", "to": "prob_mask_gen", "label": "logits", "variant": "emphasis" },
+    { "id": "e_prob_gt", "from": "prob_mask_gen", "to": "gt_compare", "label": "pred mask", "variant": "emphasis" },
+    { "id": "e_gt_ui", "from": "gt_compare", "to": "multi_panel", "label": "bench metrics", "variant": "emphasis" },
+
+    { "id": "e_upload_val", "from": "user_upload", "to": "validate_geo", "label": "upload raster", "variant": "dashed" },
+    { "id": "e_val_prep", "from": "validate_geo", "to": "prep_custom", "label": "valid bands", "variant": "dashed" },
+    { "id": "e_prepcust_unet", "from": "prep_custom", "to": "unet_inference", "label": "custom tensor", "variant": "dashed" },
+    { "id": "e_prob_area", "from": "prob_mask_gen", "to": "nominal_area_node", "label": "water pixels", "variant": "dashed" },
+    { "id": "e_area_ui", "from": "nominal_area_node", "to": "multi_panel", "label": "flood map", "variant": "dashed" }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Path A: Benchmark Testing",
+      "items": [
+        "Selects any of the 90 official Sen1Floods11 test chips",
+        "Loads Sentinel-1 SAR imagery and paired hand-labeled ground truth mask",
+        "Computes exact confusion matrix: IoU, Dice/F1, Precision, Recall, and Pixel Accuracy"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Path B: Custom Upload",
+      "items": [
+        "Enables users to upload raw GeoTIFF files for ad-hoc flood mapping",
+        "Validates dual-band SAR channels and normalizes dB backscatter",
+        "Generates continuous Flood Probability Map and calculates Nominal Flooded Area (km²)"
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "Interactive Multi-Panel Visuals",
+      "items": [
+        "Side-by-side diagnostic visualization: SAR False-Color Composite, Ground Truth, Predicted Mask, Flood Probability Heatmap, and Overlay",
+        "Dynamic threshold adjustment slider (τ = 0.10 to 0.90) for interactive sensitivity exploration"
+      ]
+    }
+  ]
+}

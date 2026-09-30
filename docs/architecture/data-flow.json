@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "diagram_type": "dataflow",
+  "meta": {
+    "title": "Satellite SAR Ingestion, Segmentation & Evaluation Data Flow",
+    "output": "docs/architecture/data-flow.html",
+    "viewBox": [1080, 520],
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "inference-pipeline",
+        "label": "Production Inference Path",
+        "focus": ["raw_sar", "sar_norm", "tensor_gen", "unet_core", "prob_map", "binary_mask"],
+        "note": "Raw Sentinel-1 GeoTIFF calibrated, normalized, fed to U-Net, and mapped to nominal flooded area."
+      },
+      {
+        "id": "evaluation-pipeline",
+        "label": "Academic Benchmark Evaluation",
+        "focus": ["gt_mask", "gt_prep", "gt_tensor", "eval_engine", "binary_mask", "benchmark_results"],
+        "note": "AI predictions rigorously compared against hand-labeled ground truth across 90 official test chips."
+      }
+    ]
+  },
+  "stages": [
+    { "label": "Raw Ingestion" },
+    { "label": "Calibration" },
+    { "label": "Tensor Staging" },
+    { "label": "Segmentation & Eval" },
+    { "label": "Outputs & Metrics" }
+  ],
+  "nodes": [
+    { "id": "raw_sar", "type": "external", "label": "Sentinel-1 SAR", "sublabel": "VV + VH 16-bit", "stage": 0, "row": 0, "tag": "C-band 5.4GHz" },
+    { "id": "gt_mask", "type": "database", "label": "Sen1Floods11 GT", "sublabel": "Hand-Labeled Masks", "stage": 0, "row": 2, "tag": "90 Test Chips" },
+
+    { "id": "sar_norm", "type": "backend", "label": "dB Calibration", "sublabel": "[-35, 5]dB -> [0, 1]", "stage": 1, "row": 0, "tag": "Min-Max Scale" },
+    { "id": "gt_prep", "type": "backend", "label": "QC Filtering", "sublabel": "Exclude -1 No-Data", "stage": 1, "row": 2, "tag": "Mask Validator" },
+
+    { "id": "tensor_gen", "type": "backend", "label": "Input Tensor", "sublabel": "Shape [2, 256, 256]", "stage": 2, "row": 0, "tag": "VV + VH Stack" },
+    { "id": "gt_tensor", "type": "backend", "label": "Reference Grid", "sublabel": "20.5M Valid Pixels", "stage": 2, "row": 2, "tag": "Binary Truth" },
+
+    { "id": "unet_core", "type": "backend", "brand": "pytorch", "label": "PyTorch U-Net", "sublabel": "7.76M Params", "stage": 3, "row": 0, "tag": "GroupNorm G=8" },
+    { "id": "eval_engine", "type": "backend", "label": "Evaluation Core", "sublabel": "Confusion Matrix", "stage": 3, "row": 2, "tag": "TP / FP / TN / FN" },
+
+    { "id": "prob_map", "type": "backend", "label": "Probability Map", "sublabel": "Sigmoid [0.0, 1.0]", "stage": 4, "row": 0, "tag": "Flood Probability" },
+    { "id": "binary_mask", "type": "backend", "label": "Binary Flood Mask", "sublabel": "Nominal Area km²", "stage": 4, "row": 1, "tag": "Cutoff τ = 0.50" },
+    { "id": "benchmark_results", "type": "backend", "label": "Official Metrics", "sublabel": "IoU: 0.5548 | F1: 0.7137", "stage": 4, "row": 2, "tag": "P: 0.7717 | R: 0.6637" }
+  ],
+  "flows": [
+    { "id": "flow-s1-norm", "from": "raw_sar", "to": "sar_norm", "label": "calibrate", "classification": "radiometric", "variant": "emphasis" },
+    { "id": "flow-norm-tensor", "from": "sar_norm", "to": "tensor_gen", "label": "normalize", "classification": "tensor ops", "variant": "emphasis" },
+    { "id": "flow-tensor-unet", "from": "tensor_gen", "to": "unet_core", "label": "tensor feed", "classification": "inference", "variant": "emphasis" },
+    { "id": "flow-unet-prob", "from": "unet_core", "to": "prob_map", "label": "logits", "classification": "probability", "variant": "emphasis" },
+    { "id": "flow-prob-mask", "from": "prob_map", "to": "binary_mask", "label": "threshold", "classification": "decision", "variant": "emphasis", "route": "straight", "labelDy": 24 },
+
+    { "id": "flow-gt-prep", "from": "gt_mask", "to": "gt_prep", "label": "QC split", "classification": "ground truth", "variant": "dashed" },
+    { "id": "flow-prep-tensor", "from": "gt_prep", "to": "gt_tensor", "label": "clean mask", "classification": "ground truth", "variant": "dashed" },
+    { "id": "flow-tensor-eval", "from": "gt_tensor", "to": "eval_engine", "label": "truth grid", "classification": "ground truth", "variant": "dashed" },
+    { "id": "flow-mask-results", "from": "binary_mask", "to": "benchmark_results", "label": "prediction", "classification": "inference", "variant": "dashed", "route": "straight", "labelDy": 24 },
+    { "id": "flow-eval-metrics", "from": "eval_engine", "to": "benchmark_results", "label": "scoring", "classification": "evaluation", "variant": "dashed" }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Radiometric Data Pipeline",
+      "items": [
+        "Sentinel-1 SAR C-band VV and VH backscatter clipped to [-35.0, 5.0] dB",
+        "Min-max normalized to [0.0, 1.0] and resized to standard 256x256 tensor grid",
+        "Dual-polarization provides critical sensitivity to open surface water and flooded vegetation"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Inference & Mapping",
+      "items": [
+        "PyTorch U-Net computes continuous flood probabilities with Sigmoid activation",
+        "Thresholding at τ=0.50 yields binary segmentation masks (0: Land, 1: Water)",
+        "Nominal Flooded Area computed via 10m x 10m Ground Sample Distance (100 m²/pixel)"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Rigorous Evaluation",
+      "items": [
+        "Tested across all 90 official Sen1Floods11 benchmark test chips without data leakage",
+        "Achieves 0.5548 IoU, 0.7137 Dice/F1, 0.7717 Precision, 0.6637 Recall, and 0.9334 Accuracy",
+        "Invalid pixels (-1: sensor no-data / cloud shadow) strictly masked out during evaluation"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "PyTorch U-Net Neural Network Architecture (7.76M Params)",
+    "output": "docs/architecture/model-pipeline.html",
+    "quality_profile": "showcase",
+    "viewBox": [1220, 720],
+    "views": [
+      {
+        "id": "encoder-path",
+        "label": "Contracting Encoder",
+        "focus": ["in_tensor", "enc_stage1", "enc_stage2", "enc_stage3", "enc_stage4", "bottleneck"],
+        "note": "4-stage hierarchical feature extraction down to 16x16 spatial bottleneck."
+      },
+      {
+        "id": "skip-connections",
+        "label": "Multi-Scale Skip Connections",
+        "focus": ["enc_stage1", "enc_stage2", "enc_stage3", "enc_stage4", "dec_stage4", "dec_stage3", "dec_stage2", "dec_stage1"],
+        "note": "Direct feature concatenation transfers high-resolution spatial details directly across the U-Net."
+      },
+      {
+        "id": "decoder-path",
+        "label": "Expanding Decoder",
+        "focus": ["bottleneck", "dec_stage4", "dec_stage3", "dec_stage2", "dec_stage1", "out_conv"],
+        "note": "Bilinear upsampling reconstructs 256x256 pixel-level continuous flood probabilities."
+      }
+    ]
+  },
+  "components": [
+    { "id": "in_tensor", "type": "backend", "label": "Input Tensor", "sublabel": "2 × 256 × 256", "pos": [70, 40], "size": [160, 52], "tag": "VV + VH dB" },
+    { "id": "enc_stage1", "type": "backend", "label": "Encoder Stage 1", "sublabel": "32 ch • 256×256", "pos": [70, 140], "size": [160, 52], "tag": "DoubleConv" },
+    { "id": "enc_stage2", "type": "backend", "label": "Encoder Stage 2", "sublabel": "64 ch • 128×128", "pos": [70, 250], "size": [160, 52], "tag": "MaxPool /2" },
+    { "id": "enc_stage3", "type": "backend", "label": "Encoder Stage 3", "sublabel": "128 ch • 64×64", "pos": [70, 360], "size": [160, 52], "tag": "MaxPool /2" },
+    { "id": "enc_stage4", "type": "backend", "label": "Encoder Stage 4", "sublabel": "256 ch • 32×32", "pos": [70, 470], "size": [160, 52], "tag": "MaxPool /2" },
+
+    { "id": "bottleneck", "type": "backend", "brand": "pytorch", "label": "Bottleneck", "sublabel": "512 ch • 16×16", "pos": [510, 580], "size": [200, 56], "tag": "Spatial Dropout 0.10" },
+
+    { "id": "dec_stage4", "type": "backend", "label": "Decoder Stage 4", "sublabel": "256 ch • 32×32", "pos": [980, 470], "size": [170, 52], "tag": "Concat Skip 256" },
+    { "id": "dec_stage3", "type": "backend", "label": "Decoder Stage 3", "sublabel": "128 ch • 64×64", "pos": [980, 360], "size": [170, 52], "tag": "Concat Skip 128" },
+    { "id": "dec_stage2", "type": "backend", "label": "Decoder Stage 2", "sublabel": "64 ch • 128×128", "pos": [980, 250], "size": [170, 52], "tag": "Concat Skip 64" },
+    { "id": "dec_stage1", "type": "backend", "label": "Decoder Stage 1", "sublabel": "32 ch • 256×256", "pos": [980, 140], "size": [170, 52], "tag": "Concat Skip 32" },
+    { "id": "out_conv", "type": "backend", "label": "Output Head", "sublabel": "1 × 256 × 256", "pos": [980, 40], "size": [170, 52], "tag": "1x1 Conv + Sigmoid" }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "Contracting Encoder (GroupNorm G=8)", "wraps": ["enc_stage1", "enc_stage2", "enc_stage3", "enc_stage4"] },
+    { "kind": "region", "label": "Expanding Decoder (Bilinear 2x)", "wraps": ["dec_stage4", "dec_stage3", "dec_stage2", "dec_stage1"] }
+  ],
+  "connections": [
+    { "id": "in-to-enc1", "from": "in_tensor", "to": "enc_stage1", "variant": "emphasis" },
+    { "id": "enc1-to-enc2", "from": "enc_stage1", "to": "enc_stage2", "variant": "emphasis" },
+    { "id": "enc2-to-enc3", "from": "enc_stage2", "to": "enc_stage3", "variant": "emphasis" },
+    { "id": "enc3-to-enc4", "from": "enc_stage3", "to": "enc_stage4", "variant": "emphasis" },
+    { "id": "enc4-to-btln", "from": "enc_stage4", "to": "bottleneck", "label": "MaxPool2d", "variant": "emphasis", "fromSide": "bottom", "toSide": "left" },
+
+    { "id": "btln-to-dec4", "from": "bottleneck", "to": "dec_stage4", "label": "Upsample 2x", "variant": "emphasis", "fromSide": "right", "toSide": "bottom" },
+    { "id": "dec4-to-dec3", "from": "dec_stage4", "to": "dec_stage3", "variant": "emphasis" },
+    { "id": "dec3-to-dec2", "from": "dec_stage3", "to": "dec_stage2", "variant": "emphasis" },
+    { "id": "dec2-to-dec1", "from": "dec_stage2", "to": "dec_stage1", "variant": "emphasis" },
+    { "id": "dec1-to-out", "from": "dec_stage1", "to": "out_conv", "variant": "emphasis" },
+
+    { "id": "skip-stg1", "from": "enc_stage1", "to": "dec_stage1", "label": "Skip Concat 32 ch", "variant": "dashed" },
+    { "id": "skip-stg2", "from": "enc_stage2", "to": "dec_stage2", "label": "Skip Concat 64 ch", "variant": "dashed" },
+    { "id": "skip-stg3", "from": "enc_stage3", "to": "dec_stage3", "label": "Skip Concat 128 ch", "variant": "dashed" },
+    { "id": "skip-stg4", "from": "enc_stage4", "to": "dec_stage4", "label": "Skip Concat 256 ch", "variant": "dashed" }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Encoder Path",
+      "items": [
+        "4 downsampling stages: 32 -> 64 -> 128 -> 256 channels",
+        "DoubleConv blocks: Conv2d(3x3) -> GroupNorm(G=8) -> ReLU -> Conv2d(3x3) -> GroupNorm(G=8) -> ReLU",
+        "GroupNorm divides channels into 8 groups for stable small-batch normalization"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Skip Connections & Decoder",
+      "items": [
+        "Bilinear upsampling avoids checkerboard deconvolution artifacts",
+        "Skip connections preserve high-resolution spatial edge details across all 4 scales",
+        "Bottleneck applies Spatial Dropout (p=0.10) for strong regularization against overfitting"
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "Model Complexity",
+      "items": [
+        "Total trainable parameters: 7,760,257 (7.76M weights)",
+        "Trained using Masked BCE + Dice Loss ignoring sensor no-data pixels (-1)",
+        "Final 1x1 convolution produces single-channel flood probability logits"
+      ]
+    }
+  ]
+}

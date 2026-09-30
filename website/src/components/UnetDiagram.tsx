@@ -234,6 +234,18 @@ export default function UnetDiagram() {
             </p>
           </div>
         </div>
+
+        {/* View Full Architecture Visualizer Link */}
+        <div className="mt-10 text-center">
+          <a
+            href="/architecture"
+            className="inline-flex items-center space-x-2 px-6 py-3 rounded-xl bg-slate-900 border border-cyan-500/40 hover:border-cyan-400 text-cyan-300 hover:text-white transition-all shadow-lg shadow-cyan-950/50 hover:scale-105 text-sm font-semibold"
+          >
+            <Layers className="w-4 h-4 text-cyan-400" />
+            <span>Explore All 5 Interactive Architecture & Workflow Visualizations</span>
+            <span className="text-slate-500">→</span>
+          </a>
+        </div>
       </div>
     </section>
   );

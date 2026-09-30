@@ -21,9 +21,10 @@ htmlcov/
 # Jupyter Notebook checkpoints
 .ipynb_checkpoints*/
 
-# IDE
+# IDE & Claude local
 .vscode/
 .idea/
+.claude/*.local.json
 
 # Checkpoints & model weights
 checkpoints/*

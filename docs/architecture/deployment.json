@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "AI Flood Detection Dual-Tier Deployment Architecture",
+    "output": "docs/architecture/deployment.html",
+    "quality_profile": "showcase",
+    "viewBox": [1260, 560],
+    "views": [
+      {
+        "id": "source-and-ci",
+        "label": "Source Control & CI/CD",
+        "focus": ["developer", "github", "nextjs_app", "python_app"],
+        "note": "Monorepo changes pushed to GitHub automatically trigger specialized deployment pipelines."
+      },
+      {
+        "id": "web-tier",
+        "label": "Public Visual Website Pipeline",
+        "focus": ["github", "nextjs_app", "vercel_cloud", "public_web"],
+        "note": "Next.js visual website compiled and served globally via Vercel Edge Network."
+      },
+      {
+        "id": "ml-tier",
+        "label": "Streamlit ML Demo Pipeline",
+        "focus": ["github", "python_app", "render_cloud", "live_demo"],
+        "note": "Python/PyTorch Streamlit application deployed as a Linux Web Service on Render Cloud."
+      }
+    ]
+  },
+  "components": [
+    { "id": "developer", "type": "external", "label": "Developer Workstation", "sublabel": "Local Git & CUDA/MPS", "pos": [50, 240], "size": [170, 60], "tag": "PyTorch Dev" },
+    { "id": "github", "type": "external", "brand": "github", "label": "GitHub Repository", "sublabel": "SupremeNexas/Ai-flood", "pos": [290, 240], "size": [170, 60], "tag": "Monorepo" },
+
+    { "id": "nextjs_app", "type": "frontend", "brand": "next-js", "label": "Next.js / React Website", "sublabel": "website/ Directory", "pos": [530, 110], "size": [180, 60], "tag": "TypeScript UI" },
+    { "id": "vercel_cloud", "type": "cloud", "brand": "vercel", "label": "Vercel Platform", "sublabel": "Production Hosting", "pos": [820, 110], "size": [160, 60], "tag": "Edge CDN" },
+    { "id": "public_web", "type": "frontend", "label": "Visual Project Site", "sublabel": "Portfolio & Research UI", "pos": [1070, 110], "size": [160, 60], "tag": "Public Access" },
+
+    { "id": "python_app", "type": "backend", "brand": "python", "label": "Streamlit App", "sublabel": "app.py + PyTorch Model", "pos": [530, 370], "size": [180, 60], "tag": "Python 3.11" },
+    { "id": "render_cloud", "type": "cloud", "brand": "render", "label": "Render Platform", "sublabel": "Linux Web Service", "pos": [820, 370], "size": [160, 60], "tag": "Cloud Host" },
+    { "id": "live_demo", "type": "frontend", "label": "Live Interactive Demo", "sublabel": "Interactive Showcase", "pos": [1070, 370], "size": [160, 60], "tag": "Viva Demo" }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "Static & Edge Hosting Tier", "wraps": ["nextjs_app", "vercel_cloud", "public_web"] },
+    { "kind": "region", "label": "Machine Learning Cloud Tier", "wraps": ["python_app", "render_cloud", "live_demo"] }
+  ],
+  "connections": [
+    { "id": "dev-to-git", "from": "developer", "to": "github", "label": "git push", "variant": "emphasis" },
+
+    { "id": "git-to-next", "from": "github", "to": "nextjs_app", "label": "website/", "variant": "dashed", "fromSide": "top", "toSide": "left" },
+    { "id": "next-to-vercel", "from": "nextjs_app", "to": "vercel_cloud", "label": "build & deploy", "variant": "emphasis" },
+    { "id": "vercel-to-web", "from": "vercel_cloud", "to": "public_web", "label": "edge serve", "variant": "emphasis" },
+
+    { "id": "git-to-py", "from": "github", "to": "python_app", "label": "app.py + src/", "variant": "dashed", "fromSide": "bottom", "toSide": "left" },
+    { "id": "py-to-render", "from": "python_app", "to": "render_cloud", "label": "deploy hook", "variant": "emphasis" },
+    { "id": "render-to-demo", "from": "render_cloud", "to": "live_demo", "label": "serve :8501", "variant": "emphasis" }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Dual-Track Deployment",
+      "items": [
+        "Monorepo architecture hosting both Next.js public documentation and Streamlit ML showcase",
+        "Independent build and deployment pipelines optimized for different runtime characteristics",
+        "Zero cross-tier runtime dependencies ensures maximum availability and resilience"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Public Website (Vercel)",
+      "items": [
+        "Next.js 16 + React 19 visual website with Tailwind CSS and Recharts",
+        "Compiled statically and served globally with low-latency edge caching",
+        "Interactive documentation, benchmark metrics, and responsive diagram viewers"
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "Live ML Demo (Render)",
+      "items": [
+        "Containerized Python 3.11 environment with PyTorch CPU inference and Rasterio GIS stack",
+        "Loads trained U-Net weights (checkpoints/best_s1.pt) with in-memory caching",
+        "Full interactive Viva viva-mode demonstration with dynamic sensitivity thresholding"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "AI Flood Detection System Architecture",
+    "output": "docs/architecture/system-architecture.html",
+    "quality_profile": "showcase",
+    "viewBox": [1160, 660],
+    "views": [
+      {
+        "id": "satellite-to-tensor",
+        "label": "Satellite Ingestion & Preprocessing",
+        "focus": ["sen1floods11", "sentinel1", "vv_channel", "vh_channel", "preprocessor"],
+        "note": "Sentinel-1 SAR dual-polarization data calibrated and normalized into 2-channel tensors."
+      },
+      {
+        "id": "ai-segmentation",
+        "label": "U-Net Inference & Mapping",
+        "focus": ["preprocessor", "unet", "prob_map", "threshold", "area_calc"],
+        "note": "PyTorch U-Net computes flood probabilities, thresholded to binary flood masks and nominal area."
+      },
+      {
+        "id": "deployment-stack",
+        "label": "Application & Deployment",
+        "focus": ["github", "vercel", "public_web", "render", "streamlit_app"],
+        "note": "Separate hosting for Next.js visual website on Vercel and Streamlit ML demo on Render."
+      }
+    ]
+  },
+  "components": [
+    { "id": "github", "type": "external", "brand": "github", "label": "GitHub Repo", "sublabel": "SupremeNexas/Ai-flood", "pos": [40, 50], "size": [140, 56], "tag": "Source" },
+    { "id": "vercel", "type": "cloud", "brand": "vercel", "label": "Vercel Platform", "sublabel": "Production Edge", "pos": [260, 50], "size": [140, 56], "tag": "Hosting" },
+    { "id": "public_web", "type": "frontend", "brand": "next-js", "label": "Visual Website", "sublabel": "Next.js / React App", "pos": [490, 50], "size": [150, 56], "tag": "Public UI" },
+    { "id": "render", "type": "cloud", "brand": "render", "label": "Render Cloud", "sublabel": "Web Service Container", "pos": [720, 50], "size": [150, 56], "tag": "Python 3.11" },
+    { "id": "streamlit_app", "type": "frontend", "label": "Streamlit Demo", "sublabel": "app.py Showcase", "pos": [950, 50], "size": [150, 56], "tag": "Interactive UI" },
+
+    { "id": "sen1floods11", "type": "database", "label": "Sen1Floods11", "sublabel": "4,831 Total Chips", "pos": [40, 200], "size": [140, 58], "tag": "Ground Truth" },
+    { "id": "sentinel1", "type": "cloud", "label": "Sentinel-1 SAR", "sublabel": "C-band 5.405 GHz", "pos": [40, 360], "size": [140, 58], "tag": "All-Weather" },
+    { "id": "vv_channel", "type": "database", "label": "VV Channel", "sublabel": "Co-polarized SAR", "pos": [260, 300], "size": [140, 56], "tag": "dB Backscatter" },
+    { "id": "vh_channel", "type": "database", "label": "VH Channel", "sublabel": "Cross-polarized SAR", "pos": [260, 420], "size": [140, 56], "tag": "dB Backscatter" },
+
+    { "id": "preprocessor", "type": "backend", "label": "Preprocessing", "sublabel": "FloodPreprocessor", "pos": [490, 360], "size": [150, 58], "tag": "[-35, 5]dB -> [0, 1]" },
+    { "id": "unet", "type": "backend", "brand": "pytorch", "label": "PyTorch U-Net", "sublabel": "7,760,257 Params", "pos": [720, 360], "size": [150, 58], "tag": "GroupNorm (G=8)" },
+    { "id": "prob_map", "type": "backend", "label": "Flood Probability", "sublabel": "Sigmoid [0.0, 1.0]", "pos": [950, 360], "size": [150, 58], "tag": "256x256 Tensor" },
+
+    { "id": "threshold", "type": "backend", "label": "Thresholding", "sublabel": "Binary Mask τ=0.50", "pos": [950, 520], "size": [150, 58], "tag": "0: Land | 1: Water" },
+    { "id": "area_calc", "type": "backend", "label": "Nominal Area", "sublabel": "Area (km²) @ 10m/px", "pos": [720, 520], "size": [150, 58], "tag": "Polygon Coverage" }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "Web Presentation Tier", "wraps": ["github", "vercel", "public_web", "render", "streamlit_app"] },
+    { "kind": "security-group", "label": "SAR Data & AI Inference Pipeline", "wraps": ["sen1floods11", "sentinel1", "vv_channel", "vh_channel", "preprocessor", "unet", "prob_map", "threshold", "area_calc"] }
+  ],
+  "connections": [
+    { "id": "git-to-vercel", "from": "github", "to": "vercel", "label": "Deploy", "variant": "dashed" },
+    { "id": "vercel-to-web", "from": "vercel", "to": "public_web", "label": "Edge Serve", "variant": "emphasis" },
+    { "id": "git-to-render", "from": "github", "to": "render", "label": "Build Hook", "variant": "dashed", "fromSide": "bottom", "toSide": "bottom", "via": [[110, 130], [795, 130]] },
+    { "id": "render-to-streamlit", "from": "render", "to": "streamlit_app", "label": "Live Streamlit", "variant": "emphasis" },
+
+    { "id": "s1-to-vv", "from": "sentinel1", "to": "vv_channel", "label": "VV Band", "fromSide": "right", "toSide": "left" },
+    { "id": "s1-to-vh", "from": "sentinel1", "to": "vh_channel", "label": "VH Band", "fromSide": "right", "toSide": "left" },
+    { "id": "vv-to-prep", "from": "vv_channel", "to": "preprocessor", "fromSide": "right", "toSide": "left" },
+    { "id": "vh-to-prep", "from": "vh_channel", "to": "preprocessor", "fromSide": "right", "toSide": "left" },
+
+    { "id": "prep-to-unet", "from": "preprocessor", "to": "unet", "label": "[2, 256, 256]", "variant": "emphasis" },
+    { "id": "unet-to-prob", "from": "unet", "to": "prob_map", "label": "Logits", "variant": "emphasis" },
+    { "id": "prob-to-thresh", "from": "prob_map", "to": "threshold", "label": "p >= 0.50", "fromSide": "bottom", "toSide": "top", "labelAt": [1025, 465] },
+    { "id": "thresh-to-area", "from": "threshold", "to": "area_calc", "label": "Count Pixels", "fromSide": "left", "toSide": "right" },
+
+    { "id": "prob-to-streamlit", "from": "prob_map", "to": "streamlit_app", "label": "Visualize", "fromSide": "top", "toSide": "bottom", "variant": "dashed" },
+    { "id": "s11-to-prep", "from": "sen1floods11", "to": "preprocessor", "label": "Split Chips", "fromSide": "right", "toSide": "top", "via": [[180, 229], [565, 229]], "variant": "dashed" }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Satellite Ingestion",
+      "items": [
+        "Sentinel-1 C-band Synthetic Aperture Radar operates day/night and penetrates cloud cover",
+        "VV and VH polarizations are extracted from raw 16-bit GeoTIFF imagery",
+        "Backscatter clipped to [-35.0, 5.0] dB and min-max scaled to [0.0, 1.0]"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "PyTorch U-Net Inference",
+      "items": [
+        "4-stage contracting encoder (32 to 256) and expanding decoder (256 to 32) with 512 bottleneck",
+        "GroupNorm (G=8) ensures stable small-batch normalization without batch-size coupling",
+        "Produces pixel-wise continuous flood probability map evaluated at τ=0.50 threshold"
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "Dual Web Delivery",
+      "items": [
+        "Next.js visual project website hosted on Vercel Edge Network",
+        "Python Streamlit showcase deployed on Render for live interactive inference",
+        "Rigorous separation of presentation and machine-learning execution environments"
+      ]
+    }
+  ]
+}
